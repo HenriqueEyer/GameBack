@@ -5,19 +5,20 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-let listUsers = {};
-let rooms = [];
+const { createRoom, joinRoom } = require('./Controller/rooms');
 
+const rooms = new Map();
 
 io.on('connection', (socket) => {
-  console.log(listUsers)
 
-  socket.on('login', ({ username }) => {
-    const randomNumber = Math.random();
-    listUsers[randomNumber] = {
-      name: username,
-    }
-    io.emit('success-login', { message: 'Login realizado com sucesso', number: randomNumber });
+  socket.on('create_room', (data) => {
+    createRoom({ ...data, rooms}, socket)
+    console.log('create_room', io.sockets.adapter.rooms)
+  })
+
+  socket.on('join_room', (data) => {
+    joinRoom({ ...data, rooms}, socket)
+    console.log('join_room', io.sockets.adapter.rooms)
   })
 
   socket.on('disconnect', () => {
@@ -28,4 +29,3 @@ io.on('connection', (socket) => {
 server.listen(4555, () => {
   console.log('listening on *:4555');
 });
-
