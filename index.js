@@ -10,18 +10,23 @@ const { createRoom, joinRoom } = require('./Controller/rooms');
 const rooms = new Map();
 
 io.on('connection', (socket) => {
-
+  console.log('connection',socket.id)
   socket.on('create_room', (data) => {
-    createRoom({ ...data, rooms}, socket)
-    console.log('create_room', io.sockets.adapter.rooms)
+    console.log('init_create_room')
+    createRoom({ ...data, rooms }, socket)
+    console.log(io.sockets.adapter.rooms)
+    console.log('end_create_room')
   })
 
   socket.on('join_room', (data) => {
-    joinRoom({ ...data, rooms}, socket)
-    console.log('join_room', io.sockets.adapter.rooms)
+    console.log('init_join_room')
+    joinRoom({ ...data, rooms }, socket)
+    console.log(io.sockets.adapter.rooms)
+    console.log('end_join_room')
   })
 
   socket.on('disconnect', () => {
+    console.log('disconnect', socket.id)
     io.emit('adeus', { message: 'Poxa, fica mais, vai ter bolo :)' });
   });
 });
