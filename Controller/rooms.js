@@ -16,13 +16,11 @@ const createRoom = (data, socket) => {
 
 const joinRoom = (data, socket) => {
   const { room, rooms, username } = data;
-  if (!rooms.has(room)) {
-    socket.emit('error_message', Label.MESSAGE_ERRORS.ROOM_NOT_EXIST);
-    return;
-  }
 
-  if (rooms.get(room).status !== 'open') {
-    socket.emit('error_message', Label.MESSAGE_ERRORS.CLOSED_ROOM);
+  const error = validateRoom(rooms, room);
+
+  if (error.status) {
+    socket.emit('error_message', error.message);
     return;
   }
 
@@ -42,6 +40,27 @@ const joinRoom = (data, socket) => {
 
   socket.to(room).emit('new_user', newRoom.users);
   socket.emit('logged', { users: newRoom.users, user });
+}
+
+const validateRoom = (rooms, room) => {
+  if (!rooms.has(room)) {
+    return {
+      status: true,
+      message: Label.MESSAGE_ERRORS.ROOM_NOT_EXIST
+    };
+  }
+
+  if (rooms.get(room).status !== 'open') {
+    return {
+      status: true,
+      message: Label.MESSAGE_ERRORS.CLOSED_ROOM
+    };
+  }
+
+  return {
+    status: false,
+    message: ''
+  };
 }
 
 module.exports = {
